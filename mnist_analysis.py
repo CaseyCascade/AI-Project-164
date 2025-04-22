@@ -5,8 +5,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 import numpy as np
 import matplotlib.pyplot as plt
-
-debug = False
+import tqdm as tqdm
 
 # 1) Load and cast labels
 mnist = fetch_openml("mnist_784", as_frame=False)
@@ -28,14 +27,3 @@ knn = KNeighborsClassifier(n_neighbors=5)
 knn.fit(X_train, y_train)
 y_pred_knn = knn.predict(X_test)
 print("KNN Accuracy:", accuracy_score(y_test, y_pred_knn))
-
-# 5) Sample some KNN predictions
-if debug:
-    np.random.seed(42)
-    sample_idx = np.random.choice(len(X_test), size=5, replace=False)
-    for i in sample_idx:
-        print(f"Index {i}: True={y_test[i]}  Pred={y_pred_knn[i]}")
-        plt.imshow(X_test[i].reshape(28,28), cmap='gray')
-        plt.title(f"True={y_test[i]} Pred={y_pred_knn[i]}")
-        plt.axis('off')
-        plt.show()
