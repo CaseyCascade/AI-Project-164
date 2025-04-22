@@ -3,8 +3,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
-import numpy as np
-import matplotlib.pyplot as plt
 import tqdm as tqdm
 
 # 1) Load and cast labels
