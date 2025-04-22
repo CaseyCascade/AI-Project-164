@@ -11,7 +11,7 @@ mnist = fetch_openml("mnist_784", as_frame=False)
 X, y = mnist.data, mnist.target
 
 # split data into training and testing sets
-X_train, y_train, X_test, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
 
 # train a logistic regression model
 # saga solver
