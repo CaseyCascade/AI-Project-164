@@ -1,36 +1,41 @@
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
+import numpy as np
 import matplotlib.pyplot as plt
 
-# load the mnist dataset
+debug = False
+
+# 1) Load and cast labels
 mnist = fetch_openml("mnist_784", as_frame=False)
+X, y = mnist.data, mnist.target.astype(int)
 
-# separate data and labels
-X, y = mnist.data, mnist.target
+# 2) Split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=123
+)
 
-# split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
+# 3) Logistic Regression
+lr = LogisticRegression(solver='saga', max_iter=100, tol=0.1)
+lr.fit(X_train, y_train)
+y_pred_lr = lr.predict(X_test)
+print("LR Accuracy:", accuracy_score(y_test, y_pred_lr))
 
-# train a logistic regression model
-# saga solver
-# 100 iterations to find a solution
-# 0.1 tolerance (stops early if change in loss is smaller than 0.1)
-model = LogisticRegression(solver='saga', max_iter=100, tol=0.1)
-model.fit(X_train, y_train)
+# 4) KNN
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train, y_train)
+y_pred_knn = knn.predict(X_test)
+print("KNN Accuracy:", accuracy_score(y_test, y_pred_knn))
 
-# predict on the test set
-y_pred = model.predict(X_test)
-
-# evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Accuracy: {accuracy}")
-
-# visualize some predictions
-fig, axes = plt.subplots(5, 5, figsize=(8, 8))
-for i, ax in enumerate(axes.flat):
-    ax.imshow(X_test[i].reshape(28, 28), cmap='gray')
-    ax.set_title(f"Predicted: {y_pred[i]}")
-    ax.axis('off')
-plt.show()
+# 5) Sample some KNN predictions
+if debug:
+    np.random.seed(42)
+    sample_idx = np.random.choice(len(X_test), size=5, replace=False)
+    for i in sample_idx:
+        print(f"Index {i}: True={y_test[i]}  Pred={y_pred_knn[i]}")
+        plt.imshow(X_test[i].reshape(28,28), cmap='gray')
+        plt.title(f"True={y_test[i]} Pred={y_pred_knn[i]}")
+        plt.axis('off')
+        plt.show()
