@@ -1,17 +1,17 @@
 {
     "logistic_regression": {
-        "best_accuracy": 0.9187857142857143,
+        "best_accuracy": 0.9199285714285714,
         "best_params": {
-            "classifier__C": 40.348825885350706,
-            "classifier__tol": 0.0021228552019752645
+            "classifier__C": 1.6176755124355395,
+            "classifier__tol": 0.00127722364893473
         }
     },
     "knn": {
-        "best_accuracy": 0.9621428571428572,
+        "best_accuracy": 0.9635714285714285,
         "best_params": {
-            "classifier__n_neighbors": 3,
+            "classifier__n_neighbors": 4,
             "classifier__p": 1,
-            "classifier__weights": "uniform"
+            "classifier__weights": "distance"
         }
     }
 }

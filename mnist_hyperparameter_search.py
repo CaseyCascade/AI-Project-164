@@ -38,10 +38,13 @@ def tqdm_joblib(tqdm_object):
     finally:
         joblib.parallel.BatchCompletionCallBack = original_callback
 
-# Load and preprocess MNIST
-n_iterations = 10 
-cv_folds = 3 
+# TODO Search Parameters
+n_iterations = 50
+cv_folds = 5
+max_iter = 5000
 
+
+# Load and preprocess MNIST
 mnist = fetch_openml("mnist_784", as_frame=False)
 X, y = mnist.data, mnist.target.astype(int)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
@@ -52,7 +55,7 @@ scaler = StandardScaler()
 # --- Randomized Search for Logistic Regression ---
 lr_pipeline = Pipeline([
     ('scaler', StandardScaler()),
-    ('classifier', LogisticRegression(solver='saga', max_iter=1000))
+    ('classifier', LogisticRegression(solver='saga', max_iter=max_iter))
 ])
 
 lr_param_dist = {
