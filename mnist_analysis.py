@@ -15,6 +15,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # 3) Logistic Regression
+# Accuracy: 0.92
 def LR_test():
     lr = LogisticRegression(solver='saga', max_iter=100, tol=0.00127722364893473, C=1.6176755124355395)
     lr.fit(X_train, y_train)
@@ -22,6 +23,7 @@ def LR_test():
     print("LR Accuracy:", accuracy_score(y_test, y_pred_lr))
 
 # 4) KNN
+# Accuracy: 0.972
 def KNN_test():
     knn = KNeighborsClassifier(n_neighbors=5)
     knn.fit(X_train, y_train)
