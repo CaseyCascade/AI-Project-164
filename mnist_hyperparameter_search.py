@@ -2,11 +2,9 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.exceptions import ConvergenceWarning
-
 from scipy.stats import loguniform, randint
 from contextlib import contextmanager
 import joblib

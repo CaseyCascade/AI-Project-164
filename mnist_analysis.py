@@ -15,13 +15,19 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # 3) Logistic Regression
-lr = LogisticRegression(solver='saga', max_iter=100, tol=0.1)
-lr.fit(X_train, y_train)
-y_pred_lr = lr.predict(X_test)
-print("LR Accuracy:", accuracy_score(y_test, y_pred_lr))
+def LR_test():
+    lr = LogisticRegression(solver='saga', max_iter=100, tol=0.00127722364893473, C=1.6176755124355395)
+    lr.fit(X_train, y_train)
+    y_pred_lr = lr.predict(X_test)
+    print("LR Accuracy:", accuracy_score(y_test, y_pred_lr))
 
 # 4) KNN
-knn = KNeighborsClassifier(n_neighbors=5)
-knn.fit(X_train, y_train)
-y_pred_knn = knn.predict(X_test)
-print("KNN Accuracy:", accuracy_score(y_test, y_pred_knn))
+def KNN_test():
+    knn = KNeighborsClassifier(n_neighbors=5)
+    knn.fit(X_train, y_train)
+    y_pred_knn = knn.predict(X_test)
+    print("KNN Accuracy:", accuracy_score(y_test, y_pred_knn))
+
+if __name__ == "__main__":
+    LR_test()
+    KNN_test()
