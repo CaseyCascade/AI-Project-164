@@ -10,6 +10,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 
+#============# Prepare Data #============#
 # Load and shuffle the dataset
 dataset = load_dataset("ethz/food101", split="train").shuffle(seed=42)
 
@@ -25,6 +26,7 @@ y = np.array(dataset["label"])
 
 # split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#========================================#
 
 #================# KNN #=================#
 # initialize classifier
@@ -69,4 +71,7 @@ y_pred_logreg = logreg_classifier.predict(X_test)
 # evaluate accuracy
 accuracy_logreg = accuracy_score(y_test, y_pred_logreg)
 print(f"Logistic Regression's Accuracy: {accuracy_logreg:.4f}")
+#========================================#
+
+#===========# Testing Section #==========#
 #========================================#
