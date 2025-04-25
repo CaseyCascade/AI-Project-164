@@ -14,17 +14,27 @@ from sklearn.linear_model import LogisticRegression
 # Load and shuffle the dataset
 dataset = load_dataset("ethz/food101", split="train").shuffle(seed=42)
 
-# Select the first N randomly sampled examples
-dataset = dataset.select(range(1000))  # e.g., 1000 random samples
+# Define a transform to resize and convert PIL images to NumPy arrays
+transform = transforms.Compose([
+    transforms.Resize((64, 64)),  # Resize for faster processing
+    transforms.ToTensor()
+])
 
-# format images
-transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
+# Apply the transform and extract image arrays and labels
+images = []
+labels = []
+label_to_idx = {label: idx for idx, label in enumerate(set(dataset['label']))}
 
-# convert to feature matrix
-X = np.stack([transform(img).view(-1).numpy() for img in dataset["image"]])
-y = np.array(dataset["label"])
+for item in dataset.select(range(1000)):  # Limit for performance
+    image = item['image'].convert("RGB")  # Already a PIL Image
+    image = transform(image)
+    images.append(image.numpy().flatten())
+    labels.append(item['label'])  # Already an integer label
 
-# split data into training and testing sets
+X = np.array(images)
+y = np.array(labels)
+
+# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 #========================================#
 
