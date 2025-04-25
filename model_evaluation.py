@@ -76,8 +76,8 @@ def roc_evaluation(name, model, X_test, y_test, class_labels, out_dir):
             ax2.legend(loc="lower right", fontsize="small")
         else:
             print("ℹ️  Skipping legend: too many classes")
-        ax2.xaxis.set_major_formatter(PercentFormatter(xmax=100))
-        ax2.yaxis.set_major_formatter(PercentFormatter(xmax=100))
+        ax2.xaxis.set_major_formatter(PercentFormatter(xmax=1))
+        ax2.yaxis.set_major_formatter(PercentFormatter(xmax=1))
 
         roc_img_path = os.path.join(out_dir, f"{name.replace(' ', '_')}_roc.png")
         fig2.savefig(roc_img_path, dpi=300, bbox_inches="tight")
