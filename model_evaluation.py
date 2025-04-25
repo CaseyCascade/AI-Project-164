@@ -1,7 +1,6 @@
 import os
 import warnings
 import json
-import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
 from matplotlib.colors import LogNorm
