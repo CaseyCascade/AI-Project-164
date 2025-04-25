@@ -1,12 +1,14 @@
 import os
 import warnings
 import json
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
 from matplotlib.colors import LogNorm
 from sklearn.datasets import fetch_openml
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA 
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.metrics import (
@@ -19,7 +21,7 @@ from sklearn.metrics import (
 RESULTS_DIR = "Model Analysis"
 MNIST_DIR = "MNIST"
 FOOD_DIR = "Food"
-EMNIST_DIR = "EMNIST" #? Not sure if we're using this one yet #TODO
+EMNIST_DIR = "EMNIST" 
 KNN_DIR = "KNN"
 LR_DIR = "Logistic Regression"
 
@@ -34,7 +36,7 @@ def classification_report_evaluation(name, model, X_test, y_test, out_dir):
         print(f"→ Saved classification report to {report_json_path}")
         return y_pred
 
-def roc_evalutation(name, model, X_test, y_test, out_dir):
+def roc_evaluation(name, model, X_test, y_test, class_labels, out_dir):
     if hasattr(model, "predict_proba"):
         y_score = model.predict_proba(X_test)
     else:
@@ -58,7 +60,9 @@ def roc_evalutation(name, model, X_test, y_test, out_dir):
         # Plot only the valid ROC curves
         fig2, ax2 = plt.subplots(figsize=(6, 6))
         for i in fpr:  # only plot classes that succeeded
-            ax2.plot(fpr[i], tpr[i], label=f"Class {i}")
+            label_name = class_labels[i] if class_labels else str(i)
+            ax2.plot(fpr[i], tpr[i], label=f"Class {label_name}")
+
 
         ax2.plot([0, 1], [0, 1], "k--", linewidth=1)
 
@@ -68,9 +72,12 @@ def roc_evalutation(name, model, X_test, y_test, out_dir):
         ax2.set_title(f"{name} ROC Curves (Zoomed In)")
         ax2.set_xlabel("False Positive Rate")
         ax2.set_ylabel("True Positive Rate (Recall)")
-        ax2.legend(loc="lower right", fontsize="small")
-        ax2.xaxis.set_major_formatter(PercentFormatter(xmax=1))
-        ax2.yaxis.set_major_formatter(PercentFormatter(xmax=1))
+        if len(fpr) <= 10:
+            ax2.legend(loc="lower right", fontsize="small")
+        else:
+            print("ℹ️  Skipping legend: too many classes")
+        ax2.xaxis.set_major_formatter(PercentFormatter(xmax=100))
+        ax2.yaxis.set_major_formatter(PercentFormatter(xmax=100))
 
         roc_img_path = os.path.join(out_dir, f"{name.replace(' ', '_')}_roc.png")
         fig2.savefig(roc_img_path, dpi=300, bbox_inches="tight")
@@ -99,11 +106,14 @@ def roc_evalutation(name, model, X_test, y_test, out_dir):
 
 
 
-def confusion_matrix_evaluation(name, y_pred, y_test, out_dir):
+def confusion_matrix_evaluation(name, y_pred, y_test, class_labels, out_dir):
+    minimal_display = False
+    if len(class_labels) > 15: 
+        minimal_display = True 
     cm_norm = confusion_matrix(y_test, y_pred, normalize="true")
     cm_data = {
         "normalized": cm_norm.tolist(),
-        "class_labels": list(range(10))
+        "class_labels": class_labels
     }
     cm_json_path = os.path.join(out_dir, f"{name.replace(' ', '_')}_confusion_data.json")
     with open(cm_json_path, "w") as f:
@@ -111,65 +121,67 @@ def confusion_matrix_evaluation(name, y_pred, y_test, out_dir):
     print(f"→ Saved normalized confusion matrix to {cm_json_path}")
 
     # Confusion Matrix Plot
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(15, 15))
     cax = ax.matshow(cm_norm + 1e-5, cmap="Blues", norm=LogNorm(vmin=1e-5, vmax=1))
     fig.colorbar(cax)
     ax.set_title(f"{name} Confusion Matrix", pad=20)
     ax.set_xlabel("Predicted label")
     ax.set_ylabel("True label")
-    ax.set_xticks(range(10))
-    ax.set_yticks(range(10))
-    ax.set_xticklabels(range(10))
-    ax.set_yticklabels(range(10))
+    ax.set_xticks(range(len(class_labels)))
+    ax.set_yticks(range(len(class_labels)))
+    
+    # Always display axis tick labels
+    ax.set_xticklabels(class_labels, rotation=90, ha="center", fontsize=8)
+    ax.set_yticklabels(class_labels, fontsize=8)
 
-    for i in range(10):
-        for j in range(10):
-            val = cm_norm[i, j]
-            ax.text(j, i, f"{val:.2f}", ha="center", va="center", fontsize=8,
-                    color="black" if val < 0.5 else "white")
+
+    if not minimal_display:
+        for i in range(len(class_labels)):
+            for j in range(len(class_labels)):
+                val = cm_norm[i, j]
+                ax.text(j, i, f"{val:.2f}", ha="center", va="center", fontsize=10,
+                        color="black" if val < 0.5 else "white")
 
     cm_img_path = os.path.join(out_dir, f"{name.replace(' ', '_')}_confusion.png")
     fig.savefig(cm_img_path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     print(f"→ Saved confusion matrix plot to {cm_img_path}")
 
-
-def LR_test(X_train, X_test, y_train, y_test, out_dir):
+def LR_test(X_train, X_test, y_train, y_test, class_labels, out_dir, solver, max_iter, tol, C):
     name = "Logistic Regression"
     out_dir = out_dir + "/" + LR_DIR
     os.makedirs(out_dir, exist_ok=True)
 
     lr = LogisticRegression(
-        solver='saga',
-        max_iter=100,
-        tol=0.00127722364893473,
-        C=1.6176755124355395,
+        solver=solver,
+        max_iter=max_iter,
+        tol=tol,
+        C=C,
     )
     lr.fit(X_train, y_train)
 
     y_pred = classification_report_evaluation(name, lr, X_test, y_test, out_dir)
-    roc_evalutation(name, lr, X_test, y_test, out_dir)
-    confusion_matrix_evaluation(name, y_pred, y_test, out_dir)
+    roc_evaluation(name, lr, X_test, y_test, class_labels, out_dir)
+    confusion_matrix_evaluation(name, y_pred, y_test, class_labels, out_dir)
     
 
-def KNN_test(X_train, X_test, y_train, y_test, out_dir):
+def KNN_test(X_train, X_test, y_train, y_test, class_labels, out_dir, n_neighbors, p=2, weights="uniform"):
     name = "KNN"
     out_dir = out_dir + "/" + KNN_DIR
     os.makedirs(out_dir, exist_ok=True)
 
-    knn = KNeighborsClassifier(n_neighbors=5)
+    knn = KNeighborsClassifier(n_neighbors=n_neighbors, p=p, weights=weights)
     knn.fit(X_train, y_train)
 
     y_pred = classification_report_evaluation(name, knn, X_test, y_test, out_dir)
-    roc_evalutation(name, knn, X_test, y_test, out_dir)
-    confusion_matrix_evaluation(name, y_pred, y_test, out_dir)
+    roc_evaluation(name, knn, X_test, y_test, class_labels, out_dir)
+    confusion_matrix_evaluation(name, y_pred, y_test, class_labels, out_dir)
 
-def main():
-    # 1) Load MNIST
+
+def MNIST_evaluation():
     mnist = fetch_openml("mnist_784", as_frame=False)
     X, y = mnist.data, mnist.target.astype(int)
 
-    # 2) Split
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=123
     )
@@ -177,16 +189,50 @@ def main():
     # MNIST Evaluations
     out_dir = RESULTS_DIR + "/" + MNIST_DIR
     os.makedirs(out_dir, exist_ok=True)
-    LR_test(X_train, X_test, y_train, y_test, out_dir)
-    KNN_test(X_train, X_test, y_train, y_test, out_dir)
+    class_labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    LR_test(X_train, X_test, y_train, y_test, class_labels, out_dir, 'saga', 100, 0.00127722364893473, 1.6176755124355395)
+    KNN_test(X_train, X_test, y_train, y_test, class_labels, out_dir, 5)
 
+def food_evaluation():
     # Food Evaluations #TODO
     out_dir = RESULTS_DIR + "/" + FOOD_DIR
     os.makedirs(out_dir, exist_ok=True)
 
-    # EMNIST Evaluations #TODO
+
+def EMNIST_evaluation():
+    emnist = fetch_openml("EMNIST_Balanced", version=1, as_frame=False)
+    X, y = emnist.data, emnist.target.astype(int)
+
+    X = X / 255.0
+
+    # Optional: Apply PCA to reduce dimensionality
+    USE_PCA = True
+    if USE_PCA:
+        pca = PCA(n_components=100)  # Try 50–150
+        X = pca.fit_transform(X)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=123
+    )
+
     out_dir = RESULTS_DIR + "/" + EMNIST_DIR
     os.makedirs(out_dir, exist_ok=True)
+
+    class_labels = [
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+    'U', 'V', 'W', 'X', 'Y', 'Z',
+    'a', 'b', 'd', 'e', 'f', 'g', 'h', 'n', 'q', 'r', 't'
+    ]
+
+    #TODO Need to find hyperparameters, these are same as MNIST 
+    LR_test(X_train, X_test, y_train, y_test, class_labels, out_dir, 'saga', 100, 0.00127722364893473, 1.6176755124355395)
+    KNN_test(X_train, X_test, y_train, y_test, class_labels, out_dir, 5)
+
+def main():
+    MNIST_evaluation()
+    EMNIST_evaluation()
 
 if __name__ == "__main__":
     main()

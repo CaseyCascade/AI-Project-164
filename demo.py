@@ -5,6 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 import tqdm as tqdm
+import numpy as np 
 
 # 1) Load and normalize EMNIST Balanced
 print("Loading EMNIST...")
@@ -13,6 +14,7 @@ X, y = mnist.data, mnist.target.astype(int)
 
 # Normalize pixel values to [0, 1]
 X = X / 255.0
+
 
 # Optional: Apply PCA to reduce dimensionality
 USE_PCA = False
@@ -24,6 +26,9 @@ if USE_PCA:
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=123
 )
+
+print("Features in Training Data:", X_train.shape[1])
+print("Features in Test Data:", X_test.shape[1])
 
 # 3) Logistic Regression
 # Accuracy: 0.69
@@ -42,5 +47,6 @@ def KNN_test():
     print("KNN Accuracy:", accuracy_score(y_test, y_pred_knn))
 
 if __name__ == "__main__":
-    LR_test()
-    KNN_test()
+    pass
+    #LR_test()
+    #KNN_test()
