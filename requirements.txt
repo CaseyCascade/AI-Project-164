@@ -4,3 +4,4 @@ torchvision
 scikit-learn
 matplotlib
 datasets
+ipywidgets
