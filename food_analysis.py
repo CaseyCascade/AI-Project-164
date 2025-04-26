@@ -1,10 +1,16 @@
+# Dataset basis
 from datasets import load_dataset
-import numpy as np
-from torchvision import transforms
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+
+# Tools
+import numpy as np
+from torchvision import transforms
+from sklearn.decomposition import PCA
+from collections import defaultdict
 from PIL import Image
-import matplotlib.pyplot as plt
+import random
+
 # Models
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
@@ -12,30 +18,48 @@ from sklearn.linear_model import LogisticRegression
 
 #============# Prepare Data #============#
 # Load and shuffle the dataset
-dataset = load_dataset("ethz/food101", split="train").shuffle(seed=42)
+dataset = load_dataset("ethz/food101", split="train")
 
-# Define a transform to resize and convert PIL images to NumPy arrays
+# Transform to resize and convert to tensor
 transform = transforms.Compose([
-    transforms.Resize((64, 64)),  # Resize for faster processing
+    transforms.Resize((64, 64)),
     transforms.ToTensor()
 ])
 
-# Apply the transform and extract image arrays and labels
+# Sample N examples per class
+samples_per_class = 10
+label_to_items = defaultdict(list)
+
+for item in dataset:
+    label_to_items[item['label']].append(item)
+
+balanced_items = []
+for label, items in label_to_items.items():
+    if len(items) >= samples_per_class:
+        selected = random.sample(items, samples_per_class)
+    else:
+        selected = items  # use all if not enough
+    balanced_items.extend(selected)
+
+random.shuffle(balanced_items)
+
+# Process images and labels
 images = []
 labels = []
-label_to_idx = {label: idx for idx, label in enumerate(set(dataset['label']))}
 
-for item in dataset.select(range(1000)):  # Limit for performance
-    image = item['image'].convert("RGB")  # Already a PIL Image
+for item in balanced_items:
+    image = item['image'].convert("RGB")
     image = transform(image)
     images.append(image.numpy().flatten())
-    labels.append(item['label'])  # Already an integer label
+    labels.append(item['label'])
 
 X = np.array(images)
 y = np.array(labels)
 
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Split into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
 #========================================#
 
 #================# KNN #=================#
