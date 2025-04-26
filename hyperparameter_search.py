@@ -5,15 +5,16 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.exceptions import ConvergenceWarning
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
 from scipy.stats import loguniform, randint
 from contextlib import contextmanager
+from datasets import load_dataset
 import joblib
 import warnings
 import os
 import tqdm
 import json
-from pathlib import Path
 
 
 # Suppress convergence warnings
@@ -43,6 +44,43 @@ n_iterations = 50
 cv_folds = 5
 max_iter = 5000
 
+def review_search():
+    #============# Prepare Data #============#
+    # Load and shuffle the dataset
+    dataset = load_dataset("Kwaai/IMDB_Sentiment", split="train").shuffle(seed=42)
+
+    # Select a smaller subset for faster training (optional)
+    dataset = dataset.select(range(1000))
+
+    # Extract text and labels
+    texts = dataset["text"]
+    labels = dataset["label"]
+
+    # TF-IDF Vectorization
+    vectorizer = TfidfVectorizer(max_features=5000)
+    X = vectorizer.fit_transform(texts)
+    y = labels
+
+    # Train/test split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    lr_results = LR(X_train, X_test, y_train, y_test)
+    knn_results = KNN(X_train, X_test, y_train, y_test)
+
+    combined_results = {
+    "Logistic Regression": lr_results,
+    "KNN": knn_results
+    }
+
+    output_dir = "Hyperparameter Search"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # 4) Save to JSON
+    output_path = os.path.join(output_dir, "review_hyperparameters.json")
+    with open(output_path, "w") as f:
+        json.dump(combined_results, f, indent=2)
+
+    print(f"✅ Saved combined results to {output_path}")
 
 def EMNIST_search():
         emnist = fetch_openml("EMNIST_Balanced", version=1, as_frame=False)
