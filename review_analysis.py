@@ -64,7 +64,7 @@ print(f"Logistic Regression's Accuracy: {accuracy_logreg:.4f}")
 #===========# Testing Section #==========#
 custom_texts = [
     "This movie was absolutely fantastic and very enjoyable!",
-    "I hated this movie."
+    "I hate that I love this movie."
 ]
 
 # transform custom texts using the same vectorizer
