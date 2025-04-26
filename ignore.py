@@ -23,15 +23,14 @@ dataset = load_dataset("microsoft/cats_vs_dogs", split="train[:1000]")
 # format images
 transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
 
-# convert to feature matrix
-X = np.stack([transform(img).view(-1).numpy() for img in dataset["image"]])
-y = np.array(dataset["labels"])
+# convert to feature matrix and extract labels
+X = np.stack([transform(example["image"]).view(-1).numpy() for example in dataset])
+y = np.array([example["labels"] for example in dataset])  # use 'labels' not 'label'
 
-# split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
-
-print("Train class distribution:", np.bincount(y_train))
-print("Test class distribution:", np.bincount(y_test))
+# split data into training and testing sets with stratified sampling
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
 #========================================#
 
 #================# KNN #=================#
