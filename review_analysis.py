@@ -2,6 +2,7 @@
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+import numpy as np
 
 # Tools
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -28,7 +29,9 @@ labels = dataset["label"]
 # TF-IDF Vectorization
 vectorizer = TfidfVectorizer(max_features=5000)
 X = vectorizer.fit_transform(texts)
-y = labels
+y = np.array(dataset["label"])
+
+print(labels)
 
 # Train/test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -61,7 +64,7 @@ print(f"Logistic Regression's Accuracy: {accuracy_logreg:.4f}")
 #===========# Testing Section #==========#
 custom_texts = [
     "This movie was absolutely fantastic and very enjoyable!",
-    "I wish it was shorter."
+    "I hated this movie."
 ]
 
 # transform custom texts using the same vectorizer
