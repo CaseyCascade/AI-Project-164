@@ -2,6 +2,7 @@
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+import numpy as np
 
 # Tools
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -28,7 +29,9 @@ labels = dataset["label"]
 # TF-IDF Vectorization
 vectorizer = TfidfVectorizer(max_features=5000)
 X = vectorizer.fit_transform(texts)
-y = labels
+y = np.array(dataset["label"])
+
+print(labels)
 
 # Train/test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -61,16 +64,16 @@ print(f"Logistic Regression's Accuracy: {accuracy_logreg:.4f}")
 #===========# Testing Section #==========#
 custom_texts = [
     "This movie was absolutely fantastic and very enjoyable!",
-    "I wish it was shorter."
+    "I hate that I love this movie."
 ]
 
-# Transform custom texts using the same vectorizer
+# transform custom texts using the same vectorizer
 custom_X = vectorizer.transform(custom_texts)
 
-# Predict using your best model (replace with the one you prefer)
+# test with logistic classifier
 custom_preds_logreg = logreg_classifier.predict(custom_X)
 
-# Show predictions
+# show predictions
 for text, pred in zip(custom_texts, custom_preds_logreg):
     label = "Positive" if pred == 1 else "Negative"
     print(f"Text: \"{text}\"\nPrediction: {label}\n")
