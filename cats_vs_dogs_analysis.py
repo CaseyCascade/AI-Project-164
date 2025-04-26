@@ -17,49 +17,21 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 
 #============# Prepare Data #============#
-# Load and shuffle the dataset
-dataset = load_dataset("ethz/food101", split="train")
+# load the cats vs dogs dataset
+dataset = load_dataset("microsoft/cats_vs_dogs", split="train[:1000]")
 
-# Transform to resize and convert to tensor
-transform = transforms.Compose([
-    transforms.Resize((64, 64)),
-    transforms.ToTensor()
-])
+# format images
+transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
 
-# Sample N examples per class
-samples_per_class = 10
-label_to_items = defaultdict(list)
+# convert to feature matrix
+X = np.stack([transform(img).view(-1).numpy() for img in dataset["image"]])
+y = np.array(dataset["labels"])
 
-for item in dataset:
-    label_to_items[item['label']].append(item)
+# split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-balanced_items = []
-for label, items in label_to_items.items():
-    if len(items) >= samples_per_class:
-        selected = random.sample(items, samples_per_class)
-    else:
-        selected = items  # use all if not enough
-    balanced_items.extend(selected)
-
-random.shuffle(balanced_items)
-
-# Process images and labels
-images = []
-labels = []
-
-for item in balanced_items:
-    image = item['image'].convert("RGB")
-    image = transform(image)
-    images.append(image.numpy().flatten())
-    labels.append(item['label'])
-
-X = np.array(images)
-y = np.array(labels)
-
-# Split into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
-)
+print("Train class distribution:", np.bincount(y_train))
+print("Test class distribution:", np.bincount(y_test))
 #========================================#
 
 #================# KNN #=================#
@@ -108,4 +80,5 @@ print(f"Logistic Regression's Accuracy: {accuracy_logreg:.4f}")
 #========================================#
 
 #===========# Testing Section #==========#
+
 #========================================#
