@@ -64,13 +64,13 @@ custom_texts = [
     "I wish it was shorter."
 ]
 
-# Transform custom texts using the same vectorizer
+# transform custom texts using the same vectorizer
 custom_X = vectorizer.transform(custom_texts)
 
-# Predict using your best model (replace with the one you prefer)
+# test with logistic classifier
 custom_preds_logreg = logreg_classifier.predict(custom_X)
 
-# Show predictions
+# show predictions
 for text, pred in zip(custom_texts, custom_preds_logreg):
     label = "Positive" if pred == 1 else "Negative"
     print(f"Text: \"{text}\"\nPrediction: {label}\n")
