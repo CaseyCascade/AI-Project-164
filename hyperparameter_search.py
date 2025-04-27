@@ -131,7 +131,15 @@ def EMNIST_search():
 def MNIST_search():
     mnist = fetch_openml("mnist_784", as_frame=False)
     X, y = mnist.data, mnist.target.astype(int)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)\
+    X = X / 255.0
+
+    USE_PCA = True
+    if USE_PCA:
+        pca = PCA(n_components=400)
+        X = pca.fit_transform(X)
+        X = X.astype('float32')
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
     
     knn_results = KNN(X_train, X_test, y_train, y_test)
     nb_results = NB(X_train, X_test, y_train, y_test)
@@ -254,7 +262,7 @@ def LR(X_train, X_test, y_train, y_test):
     return results 
 
 def main():
-    #MNIST_search()
+    MNIST_search()
     EMNIST_search()
     review_search()
 
