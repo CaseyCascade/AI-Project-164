@@ -1,0 +1,72 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{longtable}
+\usepackage{hyperref}
+
+\title{CSCI 164 Project - AI Model Analysis for Character Recognition and Other Datasets}
+\author{J. L. Bravo, Mattheau Casey, Miguel Ibarra}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This project analyzes three distinct datasets — MNIST, EMNIST, and IMDB Reviews — to compare the performance of classification models across different types of data. Specifically, we evaluate Logistic Regression and K-Nearest Neighbors algorithms, examining their accuracy, prediction scores, and overall effectiveness on each dataset. The goal is to assess both the differences between datasets and the comparative strengths of the models.
+\end{abstract}
+
+\tableofcontents
+
+\section{Dataset Selection}
+The objective of this project is to take 3 datasets and compare our models, analyzing their performance and how their hyperparameters change with respect to differing or more complicated data.
+
+\subsection{MNIST}
+The MNIST dataset is a widely used benchmark in machine learning and computer vision, consisting of 70,000 images of handwritten digits (0–9). Each image is a 28x28 pixel grayscale image, flattened into a 784-dimensional feature vector. In this project, MNIST serves as a standardized dataset for evaluating classification models. Its simplicity and well-understood structure allow us to effectively test and compare the performance of Logistic Regression and K-Nearest Neighbors algorithms on clean, labeled image data.
+\subsubsection{Insert Prior Work}
+
+\subsection{EMNIST Balanced}
+The EMNIST Balanced dataset extends the MNIST format to include both handwritten letters and digits, offering a more diverse and challenging classification task. It contains 131,600 images across 47 balanced classes, with each image being a 28x28 pixel grayscale representation. The Balanced dataset classes include handwritten characters for digits (0 - 9), every capital letter of the english alphabet, and a small selection of under-case english letters. In this project, EMNIST Balanced is used to further evaluate the performance of Logistic Regression and K-Nearest Neighbors models, providing insight into how each algorithm handles a larger and more complex set of handwritten characters.
+\subsubsection{Insert Prior Work}
+
+\subsection{IMDB Reviews}
+The IMDB Reviews dataset is a collection of 50,000 movie reviews labeled as either positive or negative. Unlike MNIST and EMNIST, this dataset is based on natural language text rather than images, presenting a different type of classification challenge. In this project, we use the IMDB dataset to evaluate how Logistic Regression and K-Nearest Neighbors perform on text data after appropriate preprocessing, allowing us to compare model performance across different data modalities.
+\subsubsection{Insert Prior Work}
+
+\section{Model Selection}
+The following classification models were implemented to meet the project requirements:
+
+\subsection{Logistic Regression}
+
+
+\subsection{K-Nearest Neighbors}
+
+\subsection{Naive Bayes}
+
+
+\section{Hyperparameter Selection}
+
+\section{Performance Evaluation}
+\subsection{MNIST}
+\subsubsection{Logistic Regression}
+\subsubsection{K-Nearest Neighbors}
+\subsection{EMNIST Balanced}
+\subsubsection{Logistic Regression}
+\subsubsection{K-Nearest Neighbors}
+\subsection{IMDB Reviews}
+\subsubsection{Logistic Regression}
+\subsubsection{K-Nearest Neighbors}
+\subsection{Dataset Comparisons}
+\subsection{Model Comparisons}
+
+
+\section{Conclusion}
+
+\section{References}
+\begin{itemize}
+    \item Date, C. J. (2004). An Introduction to Database Systems (8th ed.). Addison-Wesley.
+    \item Ben-Gan, I., & Moreau, A. (2012). SQL Server 2012 T-SQL Fundamentals. Microsoft Press.
+\end{itemize}
+
+\end{document}
