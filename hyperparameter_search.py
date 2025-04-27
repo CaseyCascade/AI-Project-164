@@ -82,6 +82,7 @@ def review_search():
 
     print(f"✅ Saved combined results to {output_path}")
 
+'''
 def EMNIST_search():
         emnist = fetch_openml("EMNIST_Balanced", version=1, as_frame=False)
         X, y = emnist.data, emnist.target.astype(int)
@@ -143,10 +144,10 @@ def MNIST_search():
         json.dump(combined_results, f, indent=2)
 
     print(f"✅ Saved combined results to {output_path}")
-
+'''
+    
 def LR(X_train, X_test, y_train, y_test):
     lr_pipeline = Pipeline([
-        ('scaler', StandardScaler()),
         ('classifier', LogisticRegression(solver='saga', max_iter=max_iter))
     ])
 
@@ -177,11 +178,9 @@ def LR(X_train, X_test, y_train, y_test):
 
     return results 
 
-
 def KNN(X_train, X_test, y_train, y_test):
     # --- Randomized Search for KNN ---
     knn_pipeline = Pipeline([
-        ('scaler', StandardScaler()),
         ('classifier', KNeighborsClassifier())
     ])
 
@@ -215,7 +214,8 @@ def KNN(X_train, X_test, y_train, y_test):
    
 def main():
     #MNIST_search()
-    EMNIST_search()
+    #EMNIST_search()
+    review_search()
 
 if __name__ == "__main__":
     main()
