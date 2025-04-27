@@ -86,7 +86,6 @@ def review_search():
 
     print(f"✅ Saved combined results to {output_path}")
 
-'''
 def EMNIST_search():
         emnist = fetch_openml("EMNIST_Balanced", version=1, as_frame=False)
         X, y = emnist.data, emnist.target.astype(int)
@@ -97,6 +96,7 @@ def EMNIST_search():
         if USE_PCA:
             pca = PCA(n_components=400)
             X = pca.fit_transform(X)
+            X = X.astype('float32')
 
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=123
@@ -107,11 +107,13 @@ def EMNIST_search():
         X_train = X_train[:train_subsample_size]
         y_train = y_train[:train_subsample_size]
 
-        lr_results = LR(X_train, X_test, y_train, y_test)
         knn_results = KNN(X_train, X_test, y_train, y_test)
+        nb_results = NB(X_train, X_test, y_train, y_test)
+        lr_results = LR(X_train, X_test, y_train, y_test)
 
         combined_results = {
         "Logistic Regression": lr_results,
+        "Naive Bayes": nb_results,
         "KNN": knn_results
         }
 
@@ -131,11 +133,13 @@ def MNIST_search():
     X, y = mnist.data, mnist.target.astype(int)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)\
     
-    lr_results = LR(X_train, X_test, y_train, y_test)
     knn_results = KNN(X_train, X_test, y_train, y_test)
+    nb_results = NB(X_train, X_test, y_train, y_test)
+    lr_results = LR(X_train, X_test, y_train, y_test)
 
     combined_results = {
     "Logistic Regression": lr_results,
+    "Naive Bayes": nb_results,
     "KNN": knn_results
     }
 
@@ -148,7 +152,6 @@ def MNIST_search():
         json.dump(combined_results, f, indent=2)
 
     print(f"✅ Saved combined results to {output_path}")
-'''
 
 def KNN(X_train, X_test, y_train, y_test):
     # --- Randomized Search for KNN ---
@@ -252,7 +255,7 @@ def LR(X_train, X_test, y_train, y_test):
 
 def main():
     #MNIST_search()
-    #EMNIST_search()
+    EMNIST_search()
     review_search()
 
 if __name__ == "__main__":
