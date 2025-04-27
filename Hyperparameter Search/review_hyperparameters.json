@@ -1,9 +1,15 @@
 {
   "Logistic Regression": {
-    "best_accuracy": 0.815,
+    "best_accuracy": 0.825,
     "best_params": {
-      "classifier__C": 47.14270373407483,
-      "classifier__tol": 0.01428755575255517
+      "classifier__C": 39.26572214554847,
+      "classifier__tol": 0.01750024413265013
+    }
+  },
+  "Naive Bayes": {
+    "best_accuracy": 0.795,
+    "best_params": {
+      "classifier__alpha": 0.15601864044243652
     }
   },
   "KNN": {
@@ -11,7 +17,7 @@
     "best_params": {
       "classifier__n_neighbors": 5,
       "classifier__p": 2,
-      "classifier__weights": "uniform"
+      "classifier__weights": "distance"
     }
   }
 }
