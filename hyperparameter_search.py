@@ -42,7 +42,7 @@ def tqdm_joblib(tqdm_object):
 # TODO Search Parameters
 n_iterations = 50
 cv_folds = 5
-max_iter = 5000
+max_iter = 300
 
 def review_search():
     #============# Prepare Data #============#
@@ -90,7 +90,7 @@ def EMNIST_search():
         # Optional: Apply PCA to reduce dimensionality
         USE_PCA = True
         if USE_PCA:
-            pca = PCA(n_components=300)
+            pca = PCA(n_components=400)
             X = pca.fit_transform(X)
 
         X_train, X_test, y_train, y_test = train_test_split(
@@ -98,7 +98,7 @@ def EMNIST_search():
         )
 
         # Then subsample training set
-        train_subsample_size = int(0.3 * len(X_train))  # use 30% of training data
+        train_subsample_size = int(0.7 * len(X_train))  # use 30% of training data
         X_train = X_train[:train_subsample_size]
         y_train = y_train[:train_subsample_size]
 
