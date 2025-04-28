@@ -1,4 +1,14 @@
 
+### /Hyperparameter Search 
+    Results from Randomized Grid Search CV on each of our datasets 
+### /Model Analysis
+    Contains all of our JSON files and graphs from running models on datasets 
+### /src
+    All source code, demos etc used for generating hyperparameters and graphs for experiment 
+### /submissions
+    Contains a Jupyter Notebook and project report for grade submissions 
+
+### Setup
 PYTHON COMMANDS
 
 ```
