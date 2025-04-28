@@ -1,13 +1,10 @@
 {
-<<<<<<< HEAD
   "Naive Bayes": {
     "best_accuracy": 0.8187857142857143,
     "best_params": {
       "classifier__alpha": 0.05808361216819946
     }
-  }
-}
-=======
+  },
     "logistic_regression": {
         "best_accuracy": 0.9199285714285714,
         "best_params": {
@@ -25,4 +22,3 @@
     }
 }
 
->>>>>>> b1467c6b3739e0e554a42642820e78c0f2b55a9a
