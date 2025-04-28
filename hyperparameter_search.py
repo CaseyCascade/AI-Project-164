@@ -66,14 +66,14 @@ def review_search():
     # Train/test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    knn_results = KNN(X_train, X_test, y_train, y_test)
+    #knn_results = KNN(X_train, X_test, y_train, y_test)
     nb_results = NB(X_train, X_test, y_train, y_test)
-    lr_results = LR(X_train, X_test, y_train, y_test)
+    #lr_results = LR(X_train, X_test, y_train, y_test)
 
     combined_results = {
-    "Logistic Regression": lr_results,
+    #"Logistic Regression": lr_results,
     "Naive Bayes": nb_results,
-    "KNN": knn_results
+    #"KNN": knn_results
     }
 
     output_dir = "Hyperparameter Search"
@@ -92,7 +92,7 @@ def EMNIST_search():
         X = X / 255.0
 
         # Optional: Apply PCA to reduce dimensionality
-        USE_PCA = True
+        USE_PCA = False
         if USE_PCA:
             pca = PCA(n_components=400)
             X = pca.fit_transform(X)
@@ -107,14 +107,14 @@ def EMNIST_search():
         X_train = X_train[:train_subsample_size]
         y_train = y_train[:train_subsample_size]
 
-        knn_results = KNN(X_train, X_test, y_train, y_test)
+        #knn_results = KNN(X_train, X_test, y_train, y_test)
         nb_results = NB(X_train, X_test, y_train, y_test)
-        lr_results = LR(X_train, X_test, y_train, y_test)
+        #lr_results = LR(X_train, X_test, y_train, y_test)
 
         combined_results = {
-        "Logistic Regression": lr_results,
+        #"Logistic Regression": lr_results,
         "Naive Bayes": nb_results,
-        "KNN": knn_results
+        #"KNN": knn_results
         }
 
         output_dir = "Hyperparameter Search"
@@ -133,7 +133,7 @@ def MNIST_search():
     X, y = mnist.data, mnist.target.astype(int)
     X = X / 255.0
 
-    USE_PCA = True
+    USE_PCA = False
     if USE_PCA:
         pca = PCA(n_components=400)
         X = pca.fit_transform(X)
@@ -141,14 +141,14 @@ def MNIST_search():
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
     
-    knn_results = KNN(X_train, X_test, y_train, y_test)
+    #knn_results = KNN(X_train, X_test, y_train, y_test)
     nb_results = NB(X_train, X_test, y_train, y_test)
-    lr_results = LR(X_train, X_test, y_train, y_test)
+    #lr_results = LR(X_train, X_test, y_train, y_test)
 
     combined_results = {
-    "Logistic Regression": lr_results,
+    #"Logistic Regression": lr_results,
     "Naive Bayes": nb_results,
-    "KNN": knn_results
+    #"KNN": knn_results
     }
 
     output_dir = "Hyperparameter Search"

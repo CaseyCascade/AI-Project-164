@@ -1,6 +1,6 @@
 {
   "Naive Bayes": {
-    "best_accuracy": 0.5384498480243161,
+    "best_accuracy": 0.8187857142857143,
     "best_params": {
       "classifier__alpha": 0.05808361216819946
     }
