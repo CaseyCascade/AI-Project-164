@@ -8,6 +8,7 @@ from matplotlib.ticker import PercentFormatter
 from matplotlib.colors import LogNorm
 from sklearn.datasets import fetch_openml
 from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import PCA 
 from sklearn.neighbors import KNeighborsClassifier
@@ -24,7 +25,8 @@ RESULTS_DIR = "Model Analysis"
 MNIST_DIR = "MNIST"
 REVIEW_DIR = "Review"
 EMNIST_DIR = "EMNIST" 
-KNN_DIR = "KNN"
+KNN_DIR = "K-Nearest Neighbors"
+NB_DIR = "Naive Bayes"
 LR_DIR = "Logistic Regression"
 
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
@@ -45,7 +47,6 @@ def classification_report_evaluation(name, model, X_test, y_test, out_dir):
     print(f"→ Saved classification report to {report_json_path}")
     return y_pred
 
-
 def roc_evaluation(name, model, X_test, y_test, class_labels, out_dir):
     if hasattr(model, "predict_proba"):
         y_score = model.predict_proba(X_test)
@@ -54,18 +55,14 @@ def roc_evaluation(name, model, X_test, y_test, class_labels, out_dir):
 
     try:
         if y_score.ndim > 1 and y_score.shape[1] == 2:
-            # Binary classification: take positive class probabilities
             y_score = y_score[:, 1]
             roc_auc = roc_auc_score(y_test, y_score)
         else:
-            # Multiclass case
             roc_auc = roc_auc_score(y_test, y_score, multi_class="ovr", average="macro")
 
         print(f"{name} ROC-AUC: {roc_auc:.4f}")
 
-        # Now plot ROC curves...
         if y_score.ndim == 1:
-            # Binary ROC curve
             fpr, tpr, _ = roc_curve(y_test, y_score)
             fig2, ax2 = plt.subplots(figsize=(6, 6))
             ax2.plot(fpr, tpr, label="ROC Curve")
@@ -82,7 +79,6 @@ def roc_evaluation(name, model, X_test, y_test, class_labels, out_dir):
             print(f"→ Saved ROC curve plot to {roc_img_path}")
         
         else:
-            # Multiclass ROC curves (your current way)
             n_classes = y_score.shape[1]
             fpr, tpr = {}, {}
             for i in range(n_classes):
@@ -113,9 +109,6 @@ def roc_evaluation(name, model, X_test, y_test, class_labels, out_dir):
     except ValueError as e:
         print(f"{name} ROC-AUC not available. Reason: {e}")
 
-
-
-
 def confusion_matrix_evaluation(name, y_pred, y_test, class_labels, out_dir):
     minimal_display = False
     if len(class_labels) > 15: 
@@ -130,9 +123,8 @@ def confusion_matrix_evaluation(name, y_pred, y_test, class_labels, out_dir):
         json.dump(cm_data, f, indent=2)
     print(f"→ Saved normalized confusion matrix to {cm_json_path}")
 
-    # Confusion Matrix Plot
     fig, ax = plt.subplots(figsize=(10, 10))
-    cax = ax.matshow(cm_norm, cmap="Blues", vmin=0, vmax=1)  # Linear scale, 0=white, 1=blue
+    cax = ax.matshow(cm_norm, cmap="Blues", vmin=0, vmax=1)
     fig.colorbar(cax)
     ax.set_title(f"{name} Confusion Matrix", pad=20)
     ax.set_xlabel("Predicted label")
@@ -142,7 +134,6 @@ def confusion_matrix_evaluation(name, y_pred, y_test, class_labels, out_dir):
     ax.set_xticklabels(class_labels, rotation=90, ha="center", fontsize=8)
     ax.set_yticklabels(class_labels, fontsize=8)
 
-    # Display values on top
     if not minimal_display:
         for i in range(len(class_labels)):
             for j in range(len(class_labels)):
@@ -155,10 +146,9 @@ def confusion_matrix_evaluation(name, y_pred, y_test, class_labels, out_dir):
     plt.close(fig)
     print(f"→ Saved confusion matrix plot to {cm_img_path}")
 
-
 def LR_test(X_train, X_test, y_train, y_test, class_labels, out_dir, solver, max_iter, tol, C):
     name = "Logistic Regression"
-    out_dir = out_dir + "/" + LR_DIR
+    out_dir = os.path.join(out_dir, LR_DIR)
     os.makedirs(out_dir, exist_ok=True)
 
     lr = LogisticRegression(
@@ -172,11 +162,10 @@ def LR_test(X_train, X_test, y_train, y_test, class_labels, out_dir, solver, max
     y_pred = classification_report_evaluation(name, lr, X_test, y_test, out_dir)
     roc_evaluation(name, lr, X_test, y_test, class_labels, out_dir)
     confusion_matrix_evaluation(name, y_pred, y_test, class_labels, out_dir)
-    
 
 def KNN_test(X_train, X_test, y_train, y_test, class_labels, out_dir, n_neighbors, p=2, weights="uniform"):
     name = "KNN"
-    out_dir = out_dir + "/" + KNN_DIR
+    out_dir = os.path.join(out_dir, KNN_DIR)
     os.makedirs(out_dir, exist_ok=True)
 
     knn = KNeighborsClassifier(n_neighbors=n_neighbors, p=p, weights=weights)
@@ -186,6 +175,17 @@ def KNN_test(X_train, X_test, y_train, y_test, class_labels, out_dir, n_neighbor
     roc_evaluation(name, knn, X_test, y_test, class_labels, out_dir)
     confusion_matrix_evaluation(name, y_pred, y_test, class_labels, out_dir)
 
+def NB_test(X_train, X_test, y_train, y_test, class_labels, out_dir):
+    name = "Naive Bayes"
+    out_dir = os.path.join(out_dir, NB_DIR)
+    os.makedirs(out_dir, exist_ok=True)
+
+    nb = GaussianNB()
+    nb.fit(X_train.toarray() if hasattr(X_train, "toarray") else X_train, y_train)
+
+    y_pred = classification_report_evaluation(name, nb, X_test.toarray() if hasattr(X_test, "toarray") else X_test, y_test, out_dir)
+    roc_evaluation(name, nb, X_test.toarray() if hasattr(X_test, "toarray") else X_test, y_test, class_labels, out_dir)
+    confusion_matrix_evaluation(name, y_pred, y_test, class_labels, out_dir)
 
 def MNIST_evaluation():
     mnist = fetch_openml("mnist_784", as_frame=False)
@@ -195,35 +195,31 @@ def MNIST_evaluation():
         X, y, test_size=0.2, random_state=123
     )
 
-    # MNIST Evaluations
-    out_dir = RESULTS_DIR + "/" + MNIST_DIR
+    out_dir = os.path.join(RESULTS_DIR, MNIST_DIR)
     os.makedirs(out_dir, exist_ok=True)
     class_labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     LR_test(X_train, X_test, y_train, y_test, class_labels, out_dir, 'saga', 100, 0.00127722364893473, 1.6176755124355395)
+    NB_test(X_train, X_test, y_train, y_test, class_labels, out_dir)
     KNN_test(X_train, X_test, y_train, y_test, class_labels, out_dir, 5)
 
 def review_evaluation():
-    out_dir = RESULTS_DIR + "/" + REVIEW_DIR
+    out_dir = os.path.join(RESULTS_DIR, REVIEW_DIR)
     os.makedirs(out_dir, exist_ok=True)
     dataset = load_dataset("Kwaai/IMDB_Sentiment", split="train").shuffle(seed=42)
     dataset = dataset.select(range(1000))
     texts = dataset["text"]
     labels = dataset["label"]
 
-    # TF-IDF Vectorization
     vectorizer = TfidfVectorizer(max_features=5000)
     X = vectorizer.fit_transform(texts)
     y = np.ravel(np.array(labels))
 
-    # Train/test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
     class_labels = ["Negative", "Positive"]
 
-
     LR_test(X_train, X_test, y_train, y_test, class_labels, out_dir, 'saga', 100, 0.00127722364893473, 1.6176755124355395)
+    NB_test(X_train, X_test, y_train, y_test, class_labels, out_dir)
     KNN_test(X_train, X_test, y_train, y_test, class_labels, out_dir, 5)
-
 
 def EMNIST_evaluation():
     emnist = fetch_openml("EMNIST_Balanced", version=1, as_frame=False)
@@ -231,17 +227,16 @@ def EMNIST_evaluation():
 
     X = X / 255.0
 
-    # Optional: Apply PCA to reduce dimensionality
     USE_PCA = True
     if USE_PCA:
-        pca = PCA(n_components=100)  # Try 50–150
+        pca = PCA(n_components=100)
         X = pca.fit_transform(X)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=123
     )
 
-    out_dir = RESULTS_DIR + "/" + EMNIST_DIR
+    out_dir = os.path.join(RESULTS_DIR, EMNIST_DIR)
     os.makedirs(out_dir, exist_ok=True)
 
     class_labels = [
@@ -252,14 +247,14 @@ def EMNIST_evaluation():
     'a', 'b', 'd', 'e', 'f', 'g', 'h', 'n', 'q', 'r', 't'
     ]
 
-    #TODO Need to find hyperparameters, these are same as MNIST 
     LR_test(X_train, X_test, y_train, y_test, class_labels, out_dir, 'saga', 100, 0.00127722364893473, 1.6176755124355395)
+    NB_test(X_train, X_test, y_train, y_test, class_labels, out_dir)
     KNN_test(X_train, X_test, y_train, y_test, class_labels, out_dir, 5)
 
 def main():
     MNIST_evaluation()
     EMNIST_evaluation()
-    #review_evaluation()
+    review_evaluation()
 
 if __name__ == "__main__":
     main()
